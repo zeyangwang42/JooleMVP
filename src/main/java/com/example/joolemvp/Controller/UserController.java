@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +38,19 @@ public class UserController {
     @Autowired
     private MyUserDetailsService userDetailsService;
 
+    private User getCurrentUser(Principal principal){
+        UsernamePasswordAuthenticationToken passwordAuthenticationToken = (UsernamePasswordAuthenticationToken) principal;
+        return  service.findByUserName(passwordAuthenticationToken.getName());
+    }
+
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestParam(name="username") String username,
-                                                       @RequestParam(name="password") String password)
-
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody User user)
             throws Exception {
-
+        if(!service.volidUser(user)){
+            return new ResponseEntity<>("you should enter a user with username and password",HttpStatus.BAD_REQUEST);
+        }
+        String username = service.getUserName(user);
+        String password = service.getPassword(user);
         try {
             myauthenticaitonManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username,password)//User.getUsername(), User.getPassword())
@@ -71,22 +79,24 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestParam(value = "firstName",required = false,defaultValue = "default") String firstName,
-                                    @RequestParam(value = "lastName", required = false,defaultValue = "default") String lastName,
-                                    @RequestParam(value = "email",required = false,defaultValue = "default") String email,
-                                    @RequestParam(value = "phone",required = false,defaultValue = "default") String phone,
-                                    @RequestParam(value = "username") String username,
-                                    @RequestParam(value = "password") String password){
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setCreateTime(new Date());
-        user.setUserName(username);
-        user.setPassword(password);
-        user.setRole(Role.USER);
+    public ResponseEntity<?> create(@RequestBody User user){
+        if(!service.volidUser(user)){
+            return new ResponseEntity<>("you should enter a user with username and password",HttpStatus.BAD_REQUEST);
+        }
         service.createUser(user);
+        String password = service.getPassword(user);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        System.out.println("passwordEncoder = "+passwordEncoder.encode(password));
+        return new ResponseEntity(user,HttpStatus.OK);
+    }
+
+    @PostMapping("/createAdmin")
+    public ResponseEntity<?> createAdmin(@RequestBody User user){
+        if(!service.volidUser(user)){
+            return new ResponseEntity<>("you should enter a user with username and password",HttpStatus.BAD_REQUEST);
+        }
+        service.createAdmin(user);
+        String password = service.getPassword(user);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         System.out.println("passwordEncoder = "+passwordEncoder.encode(password));
         return new ResponseEntity(user,HttpStatus.OK);
@@ -102,72 +112,34 @@ public class UserController {
     }
 
     @GetMapping("/findUsersProject")
-    public ResponseEntity<?> findUsersProject(@RequestParam("id")Integer id){
-        User user = service.findById(id);
-        if(user == null||user.getProjects()==null){
+    public ResponseEntity<?> findUsersProject(@RequestParam("username")String username){
+        User user = service.findByUserName(username);
+        if(user == null){
             return new ResponseEntity<>("this Id is not exist", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(user.getProjects(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getUserProject(user), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam("id") Integer id){
-        User user = service.findById(id);
+    public ResponseEntity<?> delete(@RequestParam("username") String username){
+        User user = service.findByUserName(username);
 
         if(user==null){
             return new ResponseEntity("This user do not exist",HttpStatus.BAD_REQUEST);
         }
 
-        service.deleteById(id);
-        return new ResponseEntity("The user deleted",HttpStatus.OK);
+        service.delete(user);
+        return new ResponseEntity("The user is deleted",HttpStatus.OK);
     }
-    @PostMapping("/createProject")
-    public ResponseEntity<?> createProject(@RequestParam(value = "user") Integer userid,
-                                           @RequestParam(value = "projectName",required = false,defaultValue = "default") String projectName,
-                                           @RequestParam(value ="projectAddress",required = false,defaultValue = "default") String projectAddress,
-                                           @RequestParam(value ="projectSize",required = false,defaultValue = "default") String projectSize,
-                                           @RequestParam(value ="clientName",required = false,defaultValue = "default") String clientName) {
 
-        User user = service.findById(userid);
-        if(user==null){
-            return new ResponseEntity("the given userid not exist",HttpStatus.BAD_REQUEST);
-        }
-        Project project = new Project();
-        project.setUser(user);
-        project.setProjectSize(projectSize);
-        project.setProjectName(projectName);
-        project.setProjectAddress(projectAddress);
-        project.setClientName(clientName);
-
-
-
-
-        projectService.createProjectForUser(user,project);
-
-        return new ResponseEntity(project,HttpStatus.OK);
-    }
     @PutMapping("/updateInformation")
-    public ResponseEntity<?> put(@RequestParam(value = "user") Integer userid,
-                                 @RequestParam(value = "firstName",required = false) String firstName,
-                                 @RequestParam(value = "lastName", required = false) String lastName,
-                                 @RequestParam(value = "email",required = false) String email,
-                                 @RequestParam(value = "phone",required = false) String phone){
-        User user = service.findById(userid);
-        if(user==null){
-            return new ResponseEntity("the given userid not exist",HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> update(Principal principal,
+                                    @RequestBody User updateUser){
+        User user = getCurrentUser(principal);
+        if(!service.update(user,updateUser)){
+            return new ResponseEntity("you can not update username",HttpStatus.BAD_REQUEST);
         }
-        if(firstName!=null){
-            user.setFirstName(firstName);
-        }
-        if(lastName!=null){
-            user.setLastName(lastName);
-        }
-        if(email!=null){
-            user.setEmail(email);
-        }
-        if(phone!=null){
-            user.setPhone(phone);
-        }
+
         return new ResponseEntity(user,HttpStatus.OK);
     }
 

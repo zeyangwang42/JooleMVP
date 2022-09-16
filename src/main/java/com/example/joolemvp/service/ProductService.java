@@ -16,11 +16,7 @@ public interface ProductService {
 
     public Product findById(Integer id);
 
-    public Product create(ProductUseType useType, ProductApplication application, ProductMountingLocation mountingLocation,
-                       ProductAccessories accessories,Integer modelYear,Integer airflow,Double powerMin,Double powerMax,
-                       Integer operatingVoltageMin,Integer operatingVoltageMax,Integer fanSpeedMin,Integer fanSpeedMax,
-                       Integer fanSpeedNumbers,Integer sound,Integer sweep_diameter, Integer heightMax,Integer height_min,
-                       Integer weight,String manufacturer,String series,String model);
+    public Product create(Product product);
 
     public void deleteById(Integer id);
     public Collection<Product> findAllProductInTheProject(Project project);

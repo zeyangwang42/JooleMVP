@@ -51,34 +51,12 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestParam(value = "useType",required = false,defaultValue = "industrial") ProductUseType useType,
-                                           @RequestParam(value = "application",required = false,defaultValue = "indoor") ProductApplication application,
-                                           @RequestParam(value = "mountingLocation",required = false,defaultValue = "freeStanding") ProductMountingLocation mountingLocation,
-                                           @RequestParam(value = "accessories",required = false,defaultValue = "withoutLight") ProductAccessories accessories,
-                                           @RequestParam(value = "modelYeard",required = false,defaultValue = "2000") String modelYear,
-                                           @RequestParam(value = "airflow",required = false,defaultValue = "50") Integer airflow,
-                                           @RequestParam(value = "powerMin",required = false) Double powerMin,
-                                           @RequestParam(value = "powerMax",required = false) Double powerMax,
-                                           @RequestParam(value = "operatingVoltageMin",required = false) Integer operatingVoltageMin,
-                                           @RequestParam(value = "operatingVoltageMax",required = false) Integer operatingVoltageMax,
-                                           @RequestParam(value = "fanSpeedMin",required = false) Integer fanSpeedMin,
-                                           @RequestParam(value = "fanSpeedMax",required = false) Integer fanSpeedMax,
-                                           @RequestParam(value = "fanSpeedNumbers",required = false) Integer fanSpeedNumbers,
-                                           @RequestParam(value = "sound",required = false) Integer sound,
-                                           @RequestParam(value = "sweep_diameter",required = false) Integer sweep_diameter,
-                                           @RequestParam(value = "heightMax",required = false) Integer heightMax,
-                                           @RequestParam(value = "height_min",required = false) Integer height_min,
-                                           @RequestParam(value = "weight",required = false) Integer weight,
-                                           @RequestParam(value = "manufacturer",required = false) String manufacturer,
-                                           @RequestParam(value = "series",required = false) String series,
-                                           @RequestParam(value = "model",required = false) String model) {
+    public ResponseEntity<?> createProduct(@RequestBody Product product) {
+        if(product.getProductId()!=null&&productService.findById(product.getProductId())!=null){
+            return new ResponseEntity("the product id is already exist",HttpStatus.BAD_REQUEST);
+        }
 
-
-        Product product = productService.create(useType,  application,  mountingLocation,
-                 accessories, Integer.valueOf(modelYear), Integer.valueOf(airflow), powerMin,  powerMax,
-                 operatingVoltageMin,  operatingVoltageMax,  fanSpeedMin,  fanSpeedMax,
-                 fanSpeedNumbers, sound, sweep_diameter, heightMax,height_min,
-                weight, manufacturer,series,model);
+        productService.create(product);
         return new ResponseEntity(product,HttpStatus.OK);
     }
 

@@ -36,33 +36,7 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public Product create(ProductUseType useType, ProductApplication application, ProductMountingLocation mountingLocation,
-                       ProductAccessories accessories, Integer modelYear, Integer airflow, Double powerMin, Double powerMax,
-                       Integer operatingVoltageMin, Integer operatingVoltageMax, Integer fanSpeedMin, Integer fanSpeedMax,
-                       Integer fanSpeedNumbers, Integer sound, Integer sweep_diameter, Integer heightMax, Integer height_min,
-                       Integer weight, String manufacturer, String series, String model) {
-        Product product = new Product();
-        product.setUseType(useType);
-        product.setApplication(application);
-        product.setMountingLocation(mountingLocation);
-        product.setAccessories(accessories);
-        product.setModelYear(modelYear);
-        product.setAirflow(airflow);
-        product.setPowerMin(powerMin);
-        product.setPowerMax(powerMax);
-        product.setOperatingVoltageMin(operatingVoltageMin);
-        product.setOperatingVoltageMax(operatingVoltageMax);
-        product.setFanSpeedMin(fanSpeedMin);
-        product.setFanSpeedMax(fanSpeedMax);
-        product.setFanSpeedNumbers(fanSpeedNumbers);
-        product.setSound(sound);
-        product.setSweep_diameter(sweep_diameter);
-        product.setHeightMax(heightMax);
-        product.setHeight_min(height_min);
-        product.setWeight(weight);
-        product.setManufacturer(manufacturer);
-        product.setSeries(series);
-        product.setModel(model);
+    public Product create(Product product) {
         repository.save(product);
         return product;
     }

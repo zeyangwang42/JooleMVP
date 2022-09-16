@@ -22,8 +22,7 @@ import java.util.Optional;
 public class ProjectServiceImp implements ProjectService {
     @Autowired
     private ProjectRepository repository;
-    @Autowired
-    private ProjectProductService projectProductService;
+
     @Override
     public List<Project> findAll() {
         return repository.findAll();

@@ -38,11 +38,24 @@ class ProductServiceImpTest {
      @BeforeAll()
      void init() {
 
-        Product product = service.create(ProductUseType.industrial, ProductApplication.indoor, ProductMountingLocation.freeStanding,
-                ProductAccessories.withoutLight, 2000, 50,1.0, 2.0,
-                4, 14, 4, 14,
-                12,  60, 123,2342, 23,
-                23, "String manufacturer", "String series", "String model");
+        Product product = new Product();
+        product.setModel("String model");
+        product.setSeries("String series");
+        product.setManufacturer("String manufacturer");
+        product.setWeight(23);
+        product.setHeight_min(23);
+        product.setHeightMax(2342);
+        product.setSound(123);
+        product.setUseType( ProductUseType.industrial);
+        product.setMountingLocation(ProductMountingLocation.freeStanding);
+        product.setApplication(ProductApplication.indoor);
+        product.setAccessories(ProductAccessories.withoutLight);
+        product.setModelYear(2000);
+        product.setAirflow(12);
+
+
+
+        service.create(product);
         id=product.getProductId();
     }
 

@@ -53,12 +53,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/UserController/authenticate").permitAll()
                 .antMatchers("/UserController/create").permitAll()
-                .antMatchers("/UserController/findAll").hasRole("ADMIN")
-                .antMatchers("/UserController/findById").hasRole("ADMIN")
-                .antMatchers("/UserController/delete").hasRole("ADMIN")
-                .antMatchers("/ProductController/**").hasRole("ADMIN")
-                .antMatchers("/ProjectController/ListAllProductInProject").hasRole("ADMIN")
-                .antMatchers("/ProjectController/findAll").hasRole("ADMIN")
+                .antMatchers("/UserController/createAdmin").permitAll()
+                .antMatchers("/UserController/findAll").hasAuthority("ADMIN")
+                .antMatchers("/UserController/findById").hasAuthority("ADMIN")
+                .antMatchers("/UserController/delete").hasAuthority("ADMIN")
+                .antMatchers("/ProductController/**").hasAuthority("ADMIN")
+                .antMatchers("/ProjectController/ListAllProductInProject").hasAuthority("ADMIN")
+                .antMatchers("/ProjectController/findAll").hasAuthority("ADMIN")
                 .anyRequest().fullyAuthenticated();
 
 

@@ -11,9 +11,11 @@ import com.example.joolemvp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 @RestController
@@ -27,6 +29,13 @@ public class ProjectController {
     private ProjectProductService projectProductService;
     @Autowired
     private UserService userService;
+
+
+
+    private User getCurrentUser(Principal principal){
+        UsernamePasswordAuthenticationToken passwordAuthenticationToken = (UsernamePasswordAuthenticationToken) principal;
+       return  userService.findByUserName(passwordAuthenticationToken.getName());
+    }
 
     @GetMapping("/findAll")
     public ResponseEntity<?> findAll() {
@@ -118,5 +127,23 @@ public class ProjectController {
     public ResponseEntity<?> listAllRelationBetweenProductAndProject(){
         List<ProjectProduct> list =projectProductService.findAll();
         return new ResponseEntity(list,HttpStatus.OK);
+    }
+
+    @PostMapping("/createProject")
+    public ResponseEntity<?> createProject(Principal principal,
+                                           @RequestParam(value = "projectName",required = false,defaultValue = "default") String projectName,
+                                           @RequestParam(value ="projectAddress",required = false,defaultValue = "default") String projectAddress,
+                                           @RequestParam(value ="projectSize",required = false,defaultValue = "default") String projectSize,
+                                           @RequestParam(value ="clientName",required = false,defaultValue = "default") String clientName) {
+
+        User user = getCurrentUser(principal);
+        if(user==null){
+            return new ResponseEntity("the given userid not exist",HttpStatus.BAD_REQUEST);
+        }
+        Project project = new Project();
+        service.createProjectForUser(user,project);
+
+
+        return new ResponseEntity(project,HttpStatus.OK);
     }
 }
